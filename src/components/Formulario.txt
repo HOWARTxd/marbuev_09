@@ -1,0 +1,174 @@
+import React, { useState } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import MenuItem from '@material-ui/core/MenuItem';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+
+const carreras = [
+    'Ingeniería en Sistemas Computacionales',
+    'Ingeniería en Mecatrónica',
+    'Ingeniería Civil',
+    'Ingeniería en Tecnología de la Información',
+    'Ingeniería Química',
+    'Ingeniería Industrial',
+    'Licenciatura en Administración'
+];
+
+const useStyles = makeStyles({
+    root: {
+        '& .MuiTextField-root': {
+            margin: '1rem',
+            width: '25ch',
+        },
+        '& .MuiButton-root': {
+            margin: '1rem',
+        },
+        '& .MuiTable-root': {
+            width: '100%',
+            borderCollapse: 'collapse',
+            margin: '1rem 0',
+        },
+        '& .MuiTableCell-root': {
+            border: '1px solid #ddd',
+            padding: '0.5rem',
+        },
+        '& .MuiTableHead-root': {
+            backgroundColor: '#f1f1f1',
+        },
+        '& .MuiTableRow-root:nth-child(even)': {
+            backgroundColor: '#f2f2f2',
+        },
+    },
+});
+
+const Formulario = () => {
+    const [matricula, setMatricula] = useState('');
+    const [nombre, setNombre] = useState('');
+    const [carrera, setCarrera] = useState('');
+    const [foto, setFoto] = useState(null);
+    const [registros, setRegistros] = useState([]);
+    const [registroActual, setRegistroActual] = useState(null);
+    const classes = useStyles();
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const nuevoRegistro = { matricula, nombre, carrera, foto };
+        if (registroActual !== null) {
+            // Modificar registro existente
+            const nuevosRegistros = registros.map((registro, index) => {
+                if (index === registroActual) {
+                    return nuevoRegistro;
+                }
+                return registro;
+            });
+            setRegistros(nuevosRegistros);
+            setRegistroActual(null);
+        } else {
+            // Agregar nuevo registro
+            setRegistros([...registros, nuevoRegistro]);
+        }
+        setMatricula('');
+        setNombre('');
+        setCarrera('');
+        setFoto(null);
+    };
+
+    const handleEdit = (index) => {
+        const registro = registros[index];
+        setMatricula(registro.matricula);
+        setNombre(registro.nombre);
+        setCarrera(registro.carrera);
+        setFoto(registro.foto);
+        setRegistroActual(index);
+    };
+
+    const handleDelete = (index) => {
+        const nuevosRegistros = [...registros];
+        nuevosRegistros.splice(index, 1);
+        setRegistros(nuevosRegistros);
+    };
+
+    return (
+        <form className={classes.root} onSubmit={handleSubmit}>
+            <div>
+                <TextField
+
+                    id="matricula"
+                    label="Matrícula"
+                    variant="outlined"
+                    value={matricula}
+                    onChange={(e) => setMatricula(e.target.value)}
+                />
+                <TextField
+                    id="nombre"
+                    label="Nombre"
+                    variant="outlined"
+                    value={nombre}
+                    onChange={(e) => setNombre(e.target.value)}
+                />
+                <TextField
+                    id="carrera"
+                    select
+                    label="Carrera"
+                    variant="outlined"
+                    value={carrera}
+                    onChange={(e) => setCarrera(e.target.value)}
+                >
+                    {carreras.map((option) => (
+                        <MenuItem key={option} value={option}>
+                            {option}
+                        </MenuItem>
+                    ))}
+                </TextField>
+                <Button variant="contained" component="label">
+                    Subir Foto
+                    <input type="file" accept="image/*" hidden onChange={(e) => setFoto(e.target.files[0])} />
+                </Button>
+                {foto && <img src={URL.createObjectURL(foto)} alt="Foto de perfil" width="50" height="50" />}
+                <Button type="submit" variant="contained" color="primary">
+                    Guardar
+                </Button>
+            </div>
+            {registros.length > 0 && (
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell align="center">Matrícula</TableCell>
+                            <TableCell align="center">Nombre</TableCell>
+                            <TableCell align="center">Carrera</TableCell>
+                            <TableCell align="center">Foto de Perfil</TableCell>
+                            <TableCell align="center">Acciones</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {registros.map((registro, index) => (
+                            <TableRow key={registro.matricula}>
+                                <TableCell align="center">{registro.matricula}</TableCell>
+                                <TableCell align="center">{registro.nombre}</TableCell>
+                                <TableCell align="center">{registro.carrera}</TableCell>
+                                <TableCell align="center">
+                                    {registro.foto && <img src={URL.createObjectURL(registro.foto)} alt="Foto de perfil" width="50" height="50" />}
+                                </TableCell>
+                                <TableCell align="center">
+                                    <Button variant="contained" color="primary" onClick={() => handleEdit(index)}>
+                                        Editar
+                                    </Button>
+                                    <Button variant="contained" color="secondary" onClick={() => handleDelete(index)}>
+                                        Eliminar
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            )}
+        </form>
+    );
+};
+
+export default Formulario;

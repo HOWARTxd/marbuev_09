@@ -1,0 +1,130 @@
+import React, { useState } from 'react';
+
+const carreras = [
+  'Ingeniería en Sistemas Computacionales',
+  'Ingeniería en Mecatrónica',
+  'Ingeniería Civil',
+  'Ingeniería en Tecnología de la Información',
+  'Ingeniería Química',
+  'Ingeniería Industrial',
+  'Licenciatura en Administración'
+];
+
+const Formulario = () => {
+  const [matricula, setMatricula] = useState('');
+  const [nombre, setNombre] = useState('');
+  const [carrera, setCarrera] = useState('');
+  const [foto, setFoto] = useState(null);
+  const [registros, setRegistros] = useState([]);
+  const [registroActual, setRegistroActual] = useState(null);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const nuevoRegistro = { matricula, nombre, carrera, foto };
+    if (registroActual !== null) {
+      // Modificar registro existente
+      const nuevosRegistros = registros.map((registro, index) => {
+        if (index === registroActual) {
+          return nuevoRegistro;
+        }
+        return registro;
+      });
+      setRegistros(nuevosRegistros);
+      setRegistroActual(null);
+    } else {
+      // Agregar nuevo registro
+      setRegistros([...registros, nuevoRegistro]);
+    }
+    setMatricula('');
+    setNombre('');
+    setCarrera('');
+    setFoto(null);
+  };
+
+  const handleEdit = (index) => {
+    const registro = registros[index];
+    setMatricula(registro.matricula);
+    setNombre(registro.nombre);
+    setCarrera(registro.carrera);
+    setFoto(registro.foto);
+    setRegistroActual(index);
+  };
+
+  const handleDelete = (index) => {
+    const nuevosRegistros = registros.filter((registro, i) => i !== index);
+    setRegistros(nuevosRegistros);
+  };
+
+  return (
+    <>
+      <form onSubmit={handleSubmit}>
+        <label>
+          Matricula:
+          <input type="text" value={matricula} onChange={(e) => setMatricula(e.target.value)} />
+        </label>
+        <br />
+        <label>
+          Nombre de estudiante:
+          <input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} />
+        </label>
+        <br />
+        <label>
+          Carrera:
+          <select value={carrera} onChange={(e) => setCarrera(e.target.value)}>
+            <option value="">Seleccionar carrera</option>
+            {carreras.map((carrera) => (
+              <option value={carrera} key={carrera}>
+                {carrera}
+              </option>
+            ))}
+          </select>
+        </label>
+        <br />
+        <label>
+          Foto:
+          <input type="file" onChange={(e) => setFoto(e.target.files[0])} />
+        </label>
+        <br />
+        <button type="submit">{registroActual !== null ? 'Guardar cambios' : 'Guardar'}</button>
+      </form>
+      <br />
+      <table>
+        <thead>
+          <tr>
+            <th>Matricula</th>
+<th>Nombre</th>
+<th>Carrera</th>
+<th>Foto</th>
+<th>Acciones</th>
+</tr>
+</thead>
+<tbody>
+{registros.map((registro, index) => (
+<tr key={index}>
+<td>{registro.matricula}</td>
+<td>{registro.nombre}</td>
+<td>{registro.carrera}</td>
+<td>
+{registro.foto !== null ? (
+<img src={URL.createObjectURL(registro.foto)} alt={registro.foto.name} height="50" />
+) : (
+''
+)}
+</td>
+<td>
+<button type="button" onClick={() => handleEdit(index)}>
+Editar
+</button>
+<button type="button" onClick={() => handleDelete(index)}>
+Eliminar
+</button>
+</td>
+</tr>
+))}
+</tbody>
+</table>
+</>
+);
+};
+
+export default Formulario;
